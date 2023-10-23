@@ -1,0 +1,39 @@
+version: '3'
+services:
+  service1-movieapi:
+    build:
+      context: ./Service1-MovieAPI
+    ports:
+      - "4000:4000"
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/movieapp1  # Connection to the local MongoDB
+    depends_on:
+      - mongodb
+    volumes:
+      - movieapi-data:/data/db
+
+  service2-userauth:
+    build:
+      context: ./Service2-UserAuth
+    ports:
+      - "4001:4001"
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27018/movieapp2  # Connection to the local MongoDB
+    depends_on:
+      - mongodb
+    volumes:
+      - userauth-data:/data/db
+
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+      - "27018:27018"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  movieapi-data:
+  userauth-data:
+  mongo-data:
