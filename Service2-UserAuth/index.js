@@ -26,7 +26,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Serve the HTML page
-app.use(express.static(path.join(__dirname, '../public'));
+app.use(express.static(path.join(__dirname, '../public')));
 
 // Configure session and authentication
 app.use(session({
@@ -44,7 +44,7 @@ passport.use(new LocalStrategy((username, password, done) => {
   } else {
     return done(null, false, { message: 'Incorrect username or password' });
   }
-});
+}));
 
 passport.serializeUser((user, done) => {
   done(null, user);
