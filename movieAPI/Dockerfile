@@ -14,10 +14,10 @@ RUN npm install
 COPY . .
 
 # Copy the public folder into the container
-COPY ../public ./public
+COPY ./public ./public
 
 # Expose the port that the application will run on
-EXPOSE 4001
+EXPOSE 4000
 
 # Start the application
 CMD ["npm", "start"]

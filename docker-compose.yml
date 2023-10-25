@@ -1,39 +1,37 @@
-version: '3'
+version: "3.8"
 services:
-  service1-movieapi:
-    build:
-      context: ./Service1-MovieAPI
+  movieapi:
+    image: service1-movieapi
     ports:
-      - "4000:4000"
-    environment:
-      - MONGODB_URI=mongodb://mongodb:27017/movieapp1  # Connection to the local MongoDB
-    depends_on:
-      - mongodb
+      - 9000:4000
     volumes:
-      - movieapi-data:/data/db
+      - ./Service1-MovieAPI:/app/
+    environment:
+      TEXTSTORE_HOST: textstore
+      TIMEOUT: 10
 
-  service2-userauth:
-    build:
-      context: ./Service2-UserAuth
+  userauth:
+    image: service2-userauth
     ports:
-      - "4001:4001"
-    environment:
-      - MONGODB_URI=mongodb://mongodb:27018/movieapp2  # Connection to the local MongoDB
-    depends_on:
-      - mongodb
+    - 9001:4001
     volumes:
-      - userauth-data:/data/db
+      - ./Service2-UserAuth:/app/src
+    deploy:
+      replicas: 1
+    environment:
+      TEXTSTORE_HOST: textstore
 
-  mongodb:
+  textstore:
     image: mongo
-    container_name: mongodb
+    restart: always
+    command: --quiet --syslog
     ports:
-      - "27017:27017"
-      - "27018:27018"
+    - 27017:9000
     volumes:
-      - mongo-data:/data/db
+      - textstore-data:/data/db
+      - mongo-config:/data/configdb
 
 volumes:
-  movieapi-data:
-  userauth-data:
-  mongo-data:
+  textstore-data:
+  mongo-config:
+
