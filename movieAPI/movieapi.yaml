@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: movieapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: movieapi
+  template:
+    metadata:
+      labels:
+        app: movieapi
+    spec:
+      containers:
+        - name: movieapi
+          image: shoebhashem/movieapi:v1
+          ports:
+            - containerPort: 5004
+          env:
+            - name: movie
+              value: "mongodb://127.0.0.1:27017/movieapp"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: movieapi
+spec:
+  selector:
+    app: movieapi
+  ports:
+    - protocol: TCP
+      port: 5005
+      targetPort: 5005
+  type: LoadBalancer
+---
+#mongoDB 
+apiVersion: v1
+kind: Service
+metadata:
+  name: movieapi-service
+spec:
+  selector:
+    app: movieapi
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: movie
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: movie
+  serviceName: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongo-movie
+    spec:
+      containers:
+        - name: mongo-movie
+          image: mongo:latest
+          ports:
+            - containerPort: 27017

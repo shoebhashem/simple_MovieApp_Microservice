@@ -1,37 +1,40 @@
 version: "3.8"
 services:
   movieapi:
-    image: service1-movieapi
+    image: movieapi:latest
     ports:
-      - 9000:4000
+      - 5004:5004
     volumes:
-      - ./Service1-MovieAPI:/app/
+      - ./movieAPI:/app/
     environment:
-      TEXTSTORE_HOST: textstore
-      TIMEOUT: 10
+      - MONGODB_URI=mongodb://mongodb:27017/movieapp
+    depends_on:
+      - mongodb
 
-  userauth:
-    image: service2-userauth
+  userapi:
+    image: userapi:latest
     ports:
-    - 9001:4001
+      - 5005:5005
     volumes:
-      - ./Service2-UserAuth:/app/src
+      - "./userAPI:/app/"
+      - /app/node_modules/
     deploy:
       replicas: 1
     environment:
-      TEXTSTORE_HOST: textstore
+      - MONGODB_URI=mongodb://mongodb:27017/user
+    depends_on:
+      - mongodb
 
-  textstore:
+  mongodb:
     image: mongo
     restart: always
     command: --quiet --syslog
-    ports:
-    - 27017:9000
+    expose:
+      - "27017:27017"
     volumes:
-      - textstore-data:/data/db
+      - mongodb-data:/data/db
       - mongo-config:/data/configdb
 
 volumes:
-  textstore-data:
+  mongodb-data:
   mongo-config:
-
