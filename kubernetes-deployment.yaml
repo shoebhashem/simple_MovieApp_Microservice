@@ -1,0 +1,166 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mongodb-data
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/simpleMS/data"
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mongo-config
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/path/to/mongo-config"
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: movieapi-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: movieapi
+  template:
+    metadata:
+      labels:
+        app: movieapi
+    spec:
+      containers:
+        - name: movieapi
+          image: shoebhashem/movieapi:v2
+          ports:
+            - containerPort: 5004
+          volumeMounts:
+            - name: mongodb-data
+              mountPath: /data/db
+            - name: mongo-config
+              mountPath: /data/configdb
+          env:
+            - name: MONGODB_URI
+              value: mongodb://mongodb:27017/movieapp
+  volumes:
+    - name: mongodb-data
+      persistentVolumeClaim:
+        claimName: mongodb-data
+    - name: mongo-config
+      persistentVolumeClaim:
+        claimName: mongo-config
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: movieapi-service
+spec:
+  selector:
+    app: movieapi
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5004
+  type: LoadBalancer
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: userapi-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: userapi
+  template:
+    metadata:
+      labels:
+        app: userapi
+    spec:
+      containers:
+        - name: userapi
+          image: shoebhashem/userapi:v2
+          ports:
+            - containerPort: 5005
+          volumeMounts:
+            - name: mongodb-data
+              mountPath: /data/db
+            - name: mongo-config
+              mountPath: /data/configdb
+          env:
+            - name: MONGODB_URI
+              value: mongodb://mongodb:27017/user
+  volumes:
+    - name: mongodb-data
+      persistentVolumeClaim:
+        claimName: mongodb-data
+    - name: mongo-config
+      persistentVolumeClaim:
+        claimName: mongo-config
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: userapi-service
+spec:
+  selector:
+    app: userapi
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5005
+  type: LoadBalancer
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+        - name: mongodb
+          image: mongo
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - name: mongodb-data
+              mountPath: /data/db
+            - name: mongo-config
+              mountPath: /data/configdb
+  volumes:
+    - name: mongodb-data
+      persistentVolumeClaim:
+        claimName: mongodb-data
+    - name: mongo-config
+      persistentVolumeClaim:
+        claimName: mongo-config
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-service
+spec:
+  selector:
+    app: mongodb
+  ports:
+    - protocol: TCP
+      port: 27017
+      targetPort: 27017
+
