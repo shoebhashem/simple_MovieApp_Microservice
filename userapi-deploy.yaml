@@ -1,6 +1,6 @@
 # Userapi
 # --------------------
-# - Deployment to launch one container of shoebhashem/userapi:v3 in a pod.
+# - Deployment to launch one container of shoebhashem/userapi:v4 in a pod.
 # - Service (type: LoadBalancer) to open up the app to the world (localhost, at least).
 # 
 ---
