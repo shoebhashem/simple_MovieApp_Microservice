@@ -1,0 +1,12 @@
+# ConfigMap to store in moviestore variable in
+# --------------------
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: movieapi-config
+  labels:
+    data: config2
+data:
+  moviestore_host: "NOTSET"
+---

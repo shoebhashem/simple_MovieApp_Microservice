@@ -1,0 +1,1 @@
+kubectl delete --cascade='foreground' -f userapi-deploy.yaml
