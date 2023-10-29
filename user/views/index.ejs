@@ -1,0 +1,18 @@
+<h1>Hi <%= name %>, You can now add your movie!</h1>
+<form action="<%= apiUrl %>" method="POST">
+  <div>
+    <label for="title">Title</label>
+    <input type="text" id="title" name="title" required>
+  </div>
+  <div>
+    <label for="year">Year</label>
+    <input type="number" id="year" name="year" required>
+  </div>
+  <button type="submit">Add</button>
+</form>
+<form action="/listMovies" method="GET">
+   <button type="submit">List all available movies</button>
+</form>
+<form action="/logout?_method=DELETE" method="POST">
+  <button type="submit">Log Out</button>
+</form>
