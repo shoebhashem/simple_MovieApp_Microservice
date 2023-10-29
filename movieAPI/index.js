@@ -9,8 +9,7 @@ const cors = require( 'cors' )
 const db = require( './config/db' )
 const dotenv = require( "dotenv" )
 const axios = require( 'axios' )
-//const router = express.Router()
-//const Movie = require('./movie')
+const router = express.Router()
 
 const app = express();
 //app.use(bodyParser.json());

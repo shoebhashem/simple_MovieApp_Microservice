@@ -23,7 +23,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: MS-userapi
+  name: userapi
   labels:
     app: userapi
 spec:
@@ -37,18 +37,24 @@ spec:
         app: userapi
     spec:
       containers:
-      - name: MS-userapi
-        image: shoebhashem/userapi:v4
+      - name: userapi
+        image: shoebhashem/userapi:v5
         ports:
         - containerPort: 5005
         env:
+        - name: SESSION_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: session-secret
+              key: SESSION_SECRET 
+
         - name: USERSTORE_HOST
           valueFrom:
             configMapKeyRef:
               name: userapi-config
               key: userstore_host
 ---
-# TextStore
+# UextStore
 # --------------------
 # - one container per pod running the image mongodb
 # - one headless service to access them.
@@ -121,5 +127,13 @@ metadata:
   labels:
     data: config
 data:
-  textstore_host: "NOTSET"
+  userstore_host: "NOTSET"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: session-secret
+type: Opaque
+data:
+  SESSION_SECRET: cmFuZG9tLXNlY3JldC1rZXk= 
 ---

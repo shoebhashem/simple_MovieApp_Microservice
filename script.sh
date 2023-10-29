@@ -3,11 +3,11 @@
 #!/bin/sh
 
 kubectl apply -f userapi-deploy.yaml -l data=config
-kubectl apply -f userapi-deploy.yaml -l app=mongodb
+kubectl apply -f userapi-deploy.yaml -l app=userstore
 
 # Extract the clusterIP
 export userstoreip=$( kubectl get \
-                              services/mongodb-service \
+                              services/userstore-service \
                               --template='{{.spec.clusterIP}}' )
 
 # Retrieve the ConfigMap, replace "NOTSET" with the clusterIP, and re-apply.
