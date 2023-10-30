@@ -1,17 +1,17 @@
 #!/bin/sh
 
-kubectl apply -f userapi-deploy.yaml
+kubectl apply -f movieapi-deploy.yaml -l data=config
+kubectl apply -f movieapi-deploy.yaml -l app=moviestore
 
 # Extract the clusterIP
-export userstoreip=$(kubectl get services/mongodb-service --template='{{.spec.clusterIP}}')
+export moviestoreip=$( kubectl get \
+                              services/moviestore-service \
+                              --template='{{.spec.clusterIP}}' )
 
 # Retrieve the ConfigMap, replace "NOTSET" with the clusterIP, and re-apply.
-kubectl get configmap/userapi-config -o yaml | sed -r "s/NOTSET/$userstoreip/" | kubectl apply -f -
+kubectl get configmap/movieapi-config -o yaml\
+    | sed -r "s/NOTSET/$moviestoreip/" | kubectl apply -f -
 
-# You don't need to apply the userapi deployment again because it's already created.
+# Finally, start the qfapp
+kubectl apply -f movieapi-deploy.yaml -l app=movieapi
 
-# If you want to check if the pods are running, use the following command:
-kubectl get pods
-
-# To check the logs of the userapi pod, you can use your previous command:
-# kubectl get pods -o name | grep userapi | head -1 | xargs kubectl logs -f

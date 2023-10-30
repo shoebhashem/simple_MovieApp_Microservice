@@ -42,8 +42,10 @@ app.post('/movies', (req, res) => {
 
   app.get('/movies', async (req, res) => {
     try {
+      console.log("there is a request now");
       const movies = await Movie.find({});
       res.json(movies);
+      console.log("movie list is been passed to userapi");
 
     } catch (err) {
       console.error('Error:', err);

@@ -15,7 +15,12 @@ const User = require('./user')
 const dotenv = require( "dotenv" )
 const cors = require( 'cors' )
 const axios = require( 'axios' )
-const apiUrl = `${process.env.MOVIE_API_URL}:${process.env.MOVIE_APP_PORT}/movies`;
+//const apiUrl = `${process.env.MOVIE_API_URL}:${process.env.MOVIE_APP_PORT}/movies`;
+var apiUrl = `http:\\localhost:5004\movies`;
+
+if(process.env.MOVIE_API_URL) {
+  apiUrl = process.env.MOVIE_API_URL;
+} 
 
 
 

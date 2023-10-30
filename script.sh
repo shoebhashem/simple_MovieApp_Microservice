@@ -14,5 +14,10 @@ export userstoreip=$( kubectl get \
 kubectl get configmap/userapi-config -o yaml\
     | sed -r "s/NOTSET/$userstoreip/" | kubectl apply -f -
 
+# create secret
+kubectl delete secret session-secret
+kubectl create secret generic session-secret --from-literal=SESSION_SECRET=your-secret-value
+
+
 # Finally, start the qfapp
 kubectl apply -f userapi-deploy.yaml -l app=userapi

@@ -4,69 +4,58 @@
 # - Service (type: LoadBalancer) to open up the app to the world (localhost, at least).
 # 
 ---
-apiVersion: v1
-kind: Secret
-metadata:
-  name: session-secret
-type: Opaque
-data:
-  SESSION_SECRET: cmFuZG9tLXNlY3JldC1rZXk= 
+#apiVersion: v1
+#kind: Secret
+#metadata:
+#  name: session-secret
+#type: Opaque
+#data:
+#  SESSION_SECRET: cmFuZG9tLXNlY3JldC1rZXk= 
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: userapi-service
+  name: movieapi-service
   labels:
-    app: userapi
+    app: movieapi
 spec:
-  type: LoadBalancer
   ports:
   - name: http
-    port: 5005
-    nodePort: 30001
+    port: 5004
+    targetPort: 5004
     protocol: TCP
   selector:
-    app: userapi
+    app: movieapi
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: userapi
+  name: movieapi
   labels:
-    app: userapi
+    app: movieapi
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: userapi
+      app: movieapi
   template:
     metadata:
       labels:
-        app: userapi
+        app: movieapi
     spec:
       containers:
-      - name: userapi
-        image: shoebhashem/userapi:v7
+      - name: movieapi
+        image: shoebhashem/movieapi:v4
         ports:
-        - containerPort: 5005
+        - containerPort: 5004
         env:
-        - name: SESSION_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: session-secret
-              key: SESSION_SECRET 
-
-        - name: USERSTORE_HOST
+        - name: MOVIESTORE_HOST
           valueFrom:
             configMapKeyRef:
-              name: userapi-config
-              key: userstore_host
-        - name: MOVIE_API_URL  # Add this line
-          value: "movieapi-service/movies"  # Set the URL to the name of your movie service
-#        - name: MOVIE_APP_PORT  # Add this line
-#          value: "5004"  # Set the port your movie service is running on
+              name: movieapi-config
+              key: moviestore_host
 ---
-# UextStore
+# MovieStore
 # --------------------
 # - one container per pod running the image mongodb
 # - one headless service to access them.
@@ -75,47 +64,47 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: userstore-service
+  name: moviestore-service
   labels:
-    app: userstore
+    app: moviestore
 spec:
   ports:
   - port: 27017
     targetPort: mongodb-port
   selector:
-    app: userstore
+    app: moviestore
 ---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: userstore
+  name: moviestore
   labels:
-    app: userstore
+    app: moviestore
 spec:
   serviceName: mongodb
   replicas: 1
   selector:
     matchLabels:
-      app: userstore
+      app: moviestore
   template:
     metadata:
       labels:
-        app: userstore
+        app: moviestore
     spec:
       containers:
-      - name: userstore
+      - name: moviestore
         image: mongo
         ports:
         - containerPort: 27017
           name: mongodb-port
         volumeMounts:
-        - name: userstore-data
+        - name: moviestore-data
           mountPath: /data/db
         - name: mongo-config
           mountPath: /data/configdb
   volumeClaimTemplates:
     - metadata:
-        name: userstore-data
+        name: moviestore-data
       spec:
         accessModes: ["ReadWriteOnce"]
         resources:
@@ -129,18 +118,16 @@ spec:
           requests:
             storage: 5Mi
 ---
-# ConfigMap to store USERSTORE_HOST variable in
+# ConfigMap to store MOVIESTORE_HOST variable in
 # --------------------
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: userapi-config
+  name: movieapi-config
   labels:
     data: config
 data:
-  userstore_host: "NOTSET"
-  MOVIE_API_URL: "movieapi-service/movies"  # Add this line with the URL
-  #MOVIE_APP_PORT: "5004"  # Add this line with the port
+  moviestore_host: "NOTSET"
 ---
 
