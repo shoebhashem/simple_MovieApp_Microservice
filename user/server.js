@@ -16,7 +16,7 @@ const dotenv = require( "dotenv" )
 const cors = require( 'cors' )
 const axios = require( 'axios' )
 //const apiUrl = `${process.env.MOVIE_API_URL}:${process.env.MOVIE_APP_PORT}/movies`;
-var apiUrl = `http:\\localhost:5004\movies`;
+var apiUrl = 'http://localhost:5004/movies';
 
 if(process.env.MOVIE_API_URL) {
   apiUrl = process.env.MOVIE_API_URL;
@@ -142,5 +142,6 @@ app.get('/listMovies', async (req, res) => {
     res.status(500).send('Error fetching movies.');
   }
 });
+
 
 app.listen(5005)
