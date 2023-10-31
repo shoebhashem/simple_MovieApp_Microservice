@@ -19,11 +19,12 @@ metadata:
   labels:
     app: movieapi
 spec:
-  type: ClusterIP
+  type: NodePort
   ports:
   - name: http
     port: 5004
     targetPort: 5004
+    #NodePort: 30001
     protocol: TCP
   selector:
     app: movieapi

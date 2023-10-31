@@ -14,14 +14,14 @@ spec:
         app: nginx-reverse-proxy
     spec:
       containers:
-      - name: nginx-reverse-proxy
+      - name: nginx
         image: nginx:latest
         ports:
         - containerPort: 80
         volumeMounts:
         - name: nginx-config
-          mountPath: /etc/nginx/conf.d/default.conf
-          subPath: default.conf
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
       volumes:
       - name: nginx-config
         configMap:
@@ -41,23 +41,85 @@ spec:
       targetPort: 80
   type: LoadBalancer
 ---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: userapi-ingress
+  namespace: default
+spec:
+  rules:
+  - host: userapi.example.com
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: nginx-reverse-proxy
+            port:
+              number: 80
+  - host: movieapi.example.com
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: nginx-reverse-proxy
+            port:
+              number: 80
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: userapi-ingress
+  namespace: default
+spec:
+  rules:
+  - host: userapi.example.com
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: nginx-reverse-proxy
+            port:
+              number: 80
+- host: movieapi.example.com
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: nginx-reverse-proxy
+            port:
+              number: 80
+
+
 # nginx-configmap.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: nginx-config
 data:
-  default.conf: |
-    server {
-      listen 80;
+  nginx.conf: |
+    user nginx;
 
-      location /userapi/ {
-        proxy_pass http://userapi-service;
-      }
+    events {
+      worker_connections 1000;
+    }
 
-      location /movieapi/ {
-        proxy_pass http://movieapi-service;
+    http {
+      server {
+        listen 80;
+
+        location /userapi/ {
+          proxy_pass http://userapi-service:5005;
+        }
+
+        location /movieapi/ {
+          proxy_pass http://movieapi-service:5005;
+        }
       }
-      
-      # Add more locations for other services as needed
     }

@@ -19,11 +19,12 @@ metadata:
   labels:
     app: userapi
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   ports:
   - name: http
     port: 5005
     targetPort: 5005
+    #NodePort: 30001
     protocol: TCP
   selector:
     app: userapi
@@ -62,7 +63,7 @@ spec:
               name: userapi-config
               key: userstore_host
         - name: MOVIE_API_URL  
-          value: "user.movieapi.com/movies"  # Set the URL to the name of your movie service
+          value: "http://localhost:5004"  # Set the URL to the name of your movie service
 
 ---
 # UextStore
@@ -139,7 +140,7 @@ metadata:
     data: config
 data:
   userstore_host: "NOTSET"
-  MOVIE_API_URL: "user.movieapi.com/movies"  # Add this line with the URL
+  MOVIE_API_URL: "http://localhost:5004"  # Add this line with the URL
   #MOVIE_APP_PORT: "5004"  # Add this line with the port
 ---
 
