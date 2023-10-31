@@ -22,6 +22,8 @@ if(process.env.MOVIE_API_URL) {
   apiUrl = process.env.MOVIE_API_URL;
 } 
 
+//var apiUrl = 'http://nginx-reverse-proxy/';
+
 
 
 
