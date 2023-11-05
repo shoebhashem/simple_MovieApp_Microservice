@@ -9,11 +9,11 @@ dotenv.config()
 
 const db = async () => {
     try {
-        if (process.env.MOVIESTORE_RS) {
-            console.log('This is a replicaset:', process.env.MOVIESTORE_RS);
-            let connection = process.env.MOVIESTORE_RS;
-            let user = process.env.MOVIESTORE_USER || 'noUserSet';
-            let pw = process.env.MOVIESTORE_PW || 'noPasswordSet';
+        if (process.env.APPSTORE_RS) {
+            console.log('This is a replicaset:', process.env.APPSTORE_RS);
+            let connection = process.env.APPSTORE_RS;
+            let user = process.env.APPSTORE_USER || 'noUserSet';
+            let pw = process.env.APPSTORE_PW || 'noPasswordSet';
             let authsource = process.env.MONGO_AUTHSOURCE || 'noAuthSourceSet';
 
             const con = await mongoose.connect(connection, {
@@ -23,10 +23,10 @@ const db = async () => {
             });
             console.log(`Connected to database ${dbName}`);
         } else {
-            if (!process.env.MOVIESTORE_HOST) {
-                console.log('WARNING: the environment variable MOVIESTORE_HOST is not set');
+            if (!process.env.APPSTORE_HOST) {
+                console.log('WARNING: the environment variable APPSTORE_HOST is not set');
             } else {
-                dbServer = process.env.MOVIESTORE_HOST + ':' + dbPort;
+                dbServer = process.env.APPSTORE_HOST + ':' + dbPort;
             }
 
             let connection = `mongodb://${dbServer}/${dbName}`;

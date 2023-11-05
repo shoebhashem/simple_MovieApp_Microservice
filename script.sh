@@ -39,4 +39,4 @@ kubectl create secret generic session-secret --from-literal=SESSION_SECRET=your-
 # Finally, start the userapi
 kubectl apply -f userapi-deploy.yaml -l app=userapi
 
-#kubectl apply -f nginx-deploy.yaml 
+kubectl apply -f basic-ingress.yaml 

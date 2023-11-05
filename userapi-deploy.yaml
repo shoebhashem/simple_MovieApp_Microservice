@@ -19,7 +19,7 @@ metadata:
   labels:
     app: userapi
 spec:
-  type: LoadBalancer
+  type: NodePort
   ports:
   - name: http
     port: 5005
@@ -47,7 +47,7 @@ spec:
     spec:
       containers:
       - name: userapi
-        image: shoebhashem/userapi:v10
+        image: shoebhashem/userapi:v12
         ports:
         - containerPort: 5005
         env:
@@ -63,11 +63,11 @@ spec:
               name: userapi-config
               key: userstore_host
         - name: MOVIE_API_URL  
-          value: "http://localhost:5004"  # Set the URL to the name of your movie service
+          value: "movieapi-service/movies"  # Set the URL to the name of your movie service
 
 ---
 # UextStore
-# --------------------c
+# --------------------
 # - one container per pod running the image mongodb
 # - one headless service to access them.
 # - Two persistentVolumeClaims/mounts: textstore-data, and mongo-config
@@ -140,7 +140,7 @@ metadata:
     data: config
 data:
   userstore_host: "NOTSET"
-  MOVIE_API_URL: "http://localhost:5004"  # Add this line with the URL
+  MOVIE_API_URL: "movieapi-service/movies"  # Add this line with the URL
   #MOVIE_APP_PORT: "5004"  # Add this line with the port
 ---
 

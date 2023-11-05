@@ -12,11 +12,11 @@ dotenv.config()
 
 const db = async () => {
     try {
-        if (process.env.USERSTORE_RS) {
-            console.log('This is a replicaset:', process.env.USERSTORE_RS);
-            let connection = process.env.USERSTORE_RS;
-            let user = process.env.USERSTORE_USER || 'noUserSet';
-            let pw = process.env.USERSTORE_PW || 'noPasswordSet';
+        if (process.env.APPSTORE_RS) {
+            console.log('This is a replicaset:', process.env.APPSTORE_RS);
+            let connection = process.env.APPSTORE_RS;
+            let user = process.env.APPSTORE_USER || 'noUserSet';
+            let pw = process.env.APPSTORE_PW || 'noPasswordSet';
             let authsource = process.env.MONGO_AUTHSOURCE || 'noAuthSourceSet';
 
             const con = await mongoose.connect(connection, {
@@ -26,10 +26,10 @@ const db = async () => {
             });
             console.log(`Connected to database ${dbName}`);
         } else {
-            if (!process.env.USERSTORE_HOST) {
-                console.log('WARNING: the environment variable USERSTORE_HOST is not set');
+            if (!process.env.APPSTORE_HOST) {
+                console.log('WARNING: the environment variable APPSTORE_HOST is not set');
             } else {
-                dbServer = process.env.USERSTORE_HOST + ':' + dbPort;
+                dbServer = process.env.APPSTORE_HOST + ':' + dbPort;
             }
 
             let connection = `mongodb://${dbServer}/${dbName}`;

@@ -15,16 +15,12 @@ const User = require('./user')
 const dotenv = require( "dotenv" )
 const cors = require( 'cors' )
 const axios = require( 'axios' )
-//const apiUrl = `${process.env.MOVIE_API_URL}:${process.env.MOVIE_APP_PORT}/movies`;
+let message = '';
+
 var apiUrl = 'http://localhost:5004/movies';
-
 if(process.env.MOVIE_API_URL) {
-  apiUrl = process.env.MOVIE_API_URL;
+  apiUrl = `http://${process.env.MOVIE_API_URL}:5004/movies`;
 } 
-
-//var apiUrl = 'http://nginx-reverse-proxy/';
-
-
 
 
 app.use(express.json());
@@ -58,7 +54,8 @@ app.use(passport.session())
 app.use(methodOverride('_method'))
 
 app.get('/', checkAuthenticated, (req, res) => {
-  res.render('index.ejs', { name: req.user.name, apiUrl: apiUrl })
+
+  res.render('index.ejs', { name: req.user.name, message })
 })
 
 app.get('/login', checkNotAuthenticated, (req, res) => {
@@ -131,8 +128,10 @@ function checkNotAuthenticated(req, res, next) {
 }
 
 app.get('/listMovies', async (req, res) => {
+
   try {
     //const apiUrl = process.env.MOVIE_API_URL || 'http://movieapi:5004';
+
     const response = await axios.get(apiUrl);
     const movies = response.data;
 
@@ -142,6 +141,20 @@ app.get('/listMovies', async (req, res) => {
     res.status(500).send('Error fetching movies.');
   }
 });
-
+app.post('/movies', async (req, res) => {
+  const title = req.body.title;
+  const year = req.body.year;
+  const movie = { title, year };
+  try {
+    // Assuming apiUrl is defined somewhere in your code
+    await axios.post(apiUrl, movie);
+    message = `Movie "${title}" added successfully`;
+    console.log(message);
+    res.redirect('/', { message });
+  } catch (error) {
+    // Handle errors, e.g., send an error response
+    res.status(500).send('Error creating movie');
+  }
+});
 
 app.listen(5005)

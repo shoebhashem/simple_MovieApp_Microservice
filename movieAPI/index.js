@@ -21,7 +21,7 @@ const Movie = require('./movie')
 const Port = process.env.PORT || 5004
 
 db()
-
+app.set('view-engine', 'ejs');
 // Parse JSON and URL-encoded data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -45,7 +45,7 @@ app.post('/movies', (req, res) => {
       console.log("there is a request now");
       const movies = await Movie.find({});
       res.json(movies);
-      console.log("movie list is been passed to userapi");
+      console.log("movie list has been passed to userapi");
 
     } catch (err) {
       console.error('Error:', err);

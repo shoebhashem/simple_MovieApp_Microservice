@@ -1,0 +1,194 @@
+# Userapi
+# --------------------
+# - Deployment to launch one container of shoebhashem/userapi:v4 in a pod.
+# - Service (type: LoadBalancer) to open up the app to the world (localhost, at least).
+# 
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: session-secret
+type: Opaque
+data:
+  SESSION_SECRET: cmFuZG9tLXNlY3JldC1rZXk= 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: userapi-service
+  labels:
+    app: userapi
+spec:
+  type: NodePort
+  ports:
+  - name: http
+    port: 5005
+    targetPort: 5005
+    #NodePort: 30001
+    protocol: TCP
+  selector:
+    app: userapi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: userapi
+  labels:
+    app: userapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: userapi
+  template:
+    metadata:
+      labels:
+        app: userapi
+    spec:
+      containers:
+      - name: userapi
+        image: shoebhashem/userapi:v13
+        ports:
+        - containerPort: 5005
+        env:
+        - name: SESSION_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: session-secret
+              key: SESSION_SECRET 
+
+        - name: APPSTORE_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: appstore_host
+        - name: MOVIE_API_URL 
+          valueFrom: 
+            configMapKeyRef:
+              name: app-config
+              key: movie_api_url
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: movieapi-service
+  labels:
+    app: movieapi
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 5004
+    targetPort: 5004
+    #NodePort: 30001
+    protocol: TCP
+  selector:
+    app: movieapi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: movieapi
+  labels:
+    app: movieapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: movieapi
+  template:
+    metadata:
+      labels:
+        app: movieapi
+    spec:
+      containers:
+      - name: movieapi
+        image: shoebhashem/movieapi:v5
+        ports:
+        - containerPort: 5004
+        env:
+        - name: APPSTORE_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: appstore_host
+---
+
+---
+# appStore
+# --------------------
+# - one container per pod running the image mongodb
+# - one headless service to access them.
+# - Two persistentVolumeClaims/mounts: textstore-data, and mongo-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: appstore-service
+  labels:
+    app: appstore
+spec:
+  ports:
+  - port: 27017
+    targetPort: mongodb-port
+  selector:
+    app: appstore
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: appstore
+  labels:
+    app: appstore
+spec:
+  serviceName: mongodb
+  replicas: 1
+  selector:
+    matchLabels:
+      app: appstore
+  template:
+    metadata:
+      labels:
+        app: appstore
+    spec:
+      containers:
+      - name: appstore
+        image: mongo
+        ports:
+        - containerPort: 27017
+          name: mongodb-port
+        volumeMounts:
+        - name: appstore-data
+          mountPath: /data/db
+        - name: mongo-config
+          mountPath: /data/configdb
+  volumeClaimTemplates:
+    - metadata:
+        name: appstore-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 10Mi
+    - metadata:
+        name: mongo-config
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 5Mi
+---
+# ConfigMap for variables
+# --------------------
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  labels:
+    data: config
+data:
+  appstore_host: "database_IP"
+  movie_api_url: "movieapi_IP"
+---
+
